@@ -1,0 +1,25 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm test
+      - run: npm run check-docs-sync
+      # RELEASE.md step 2 asks for these too. A checklist item only a person
+      # runs is the item that gets skipped the one time it mattered.
+      - run: npm run check-docs-data
+      - run: node scripts/build-readme.mjs --check
+      - run: node scripts/ascii-source.mjs --check README.md SKILL.md AGENTS.md CHANGELOG.md RELEASE.md bin/tells.mjs
+      - run: npm pack --dry-run

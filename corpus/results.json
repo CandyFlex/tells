@@ -1,0 +1,1322 @@
+{
+  "schema": "tells/corpus@1",
+  "observedAt": "2026-09-19",
+  "tool": {
+    "name": "tells",
+    "version": "0.1.0"
+  },
+  "ruleIds": [
+    "vocabulary",
+    "copula-avoidance",
+    "negative-parallelism",
+    "rule-of-three",
+    "em-dash",
+    "ing-analysis",
+    "significance-inflation",
+    "puffery",
+    "vague-attribution",
+    "vague-association",
+    "transition-openers",
+    "challenges-formula",
+    "inline-header-lists",
+    "bold-overuse",
+    "heading-style",
+    "chat-residue",
+    "model-artifacts",
+    "didactic-disclaimers"
+  ],
+  "files": [
+    {
+      "id": "lincoln-gettysburg",
+      "path": "human/lincoln-gettysburg-address.txt",
+      "kind": "human",
+      "plain": true,
+      "words": 268,
+      "sha256": "44afc569f5e8f80a9d78e1651c14df82957cf765da756f119d3fb9a5e471654a",
+      "rates": {
+        "vocabulary": {
+          "count": 0,
+          "per1k": 0
+        },
+        "copula-avoidance": {
+          "count": 0,
+          "per1k": 0
+        },
+        "negative-parallelism": {
+          "count": 0,
+          "per1k": 0
+        },
+        "rule-of-three": {
+          "count": 0,
+          "per1k": 0
+        },
+        "em-dash": {
+          "count": 0,
+          "per1k": 0
+        },
+        "ing-analysis": {
+          "count": 0,
+          "per1k": 0
+        },
+        "significance-inflation": {
+          "count": 0,
+          "per1k": 0
+        },
+        "puffery": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-attribution": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 0,
+          "per1k": 0
+        },
+        "challenges-formula": {
+          "count": 0,
+          "per1k": 0
+        },
+        "inline-header-lists": {
+          "count": 0,
+          "per1k": 0
+        },
+        "bold-overuse": {
+          "count": 0,
+          "per1k": 0
+        },
+        "heading-style": {
+          "count": 0,
+          "per1k": 0
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0
+    },
+    {
+      "id": "twain-german",
+      "path": "human/twain-awful-german-language.txt",
+      "kind": "human",
+      "plain": true,
+      "words": 1548,
+      "sha256": "d94d7a33317edf6115003f35591d5cb84a9d7cee72289080e9db050858d78328",
+      "rates": {
+        "vocabulary": {
+          "count": 0,
+          "per1k": 0
+        },
+        "copula-avoidance": {
+          "count": 0,
+          "per1k": 0
+        },
+        "negative-parallelism": {
+          "count": 0,
+          "per1k": 0
+        },
+        "rule-of-three": {
+          "count": 0,
+          "per1k": 0
+        },
+        "em-dash": {
+          "count": 28,
+          "per1k": 18.09
+        },
+        "ing-analysis": {
+          "count": 0,
+          "per1k": 0
+        },
+        "significance-inflation": {
+          "count": 0,
+          "per1k": 0
+        },
+        "puffery": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-attribution": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 0,
+          "per1k": 0
+        },
+        "challenges-formula": {
+          "count": 0,
+          "per1k": 0
+        },
+        "inline-header-lists": {
+          "count": 0,
+          "per1k": 0
+        },
+        "bold-overuse": {
+          "count": 0,
+          "per1k": 0
+        },
+        "heading-style": {
+          "count": 0,
+          "per1k": 0
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0
+    },
+    {
+      "id": "madison-federalist-10",
+      "path": "human/madison-federalist-10.txt",
+      "kind": "human",
+      "plain": true,
+      "words": 1543,
+      "sha256": "1db3fc891bd564e12fdf31b52d485e56ba97635874295c5c81a28d53cbd43686",
+      "rates": {
+        "vocabulary": {
+          "count": 1,
+          "per1k": 0.65
+        },
+        "copula-avoidance": {
+          "count": 0,
+          "per1k": 0
+        },
+        "negative-parallelism": {
+          "count": 0,
+          "per1k": 0
+        },
+        "rule-of-three": {
+          "count": 3,
+          "per1k": 1.94
+        },
+        "em-dash": {
+          "count": 0,
+          "per1k": 0
+        },
+        "ing-analysis": {
+          "count": 0,
+          "per1k": 0
+        },
+        "significance-inflation": {
+          "count": 0,
+          "per1k": 0
+        },
+        "puffery": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-attribution": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 0,
+          "per1k": 0
+        },
+        "challenges-formula": {
+          "count": 0,
+          "per1k": 0
+        },
+        "inline-header-lists": {
+          "count": 0,
+          "per1k": 0
+        },
+        "bold-overuse": {
+          "count": 0,
+          "per1k": 0
+        },
+        "heading-style": {
+          "count": 0,
+          "per1k": 0
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0
+    },
+    {
+      "id": "thoreau-walden",
+      "path": "human/thoreau-walden-economy.txt",
+      "kind": "human",
+      "plain": true,
+      "words": 1690,
+      "sha256": "7691726137bf77eff44c57d3cf45dc62433939e9e79e6133a88329459f4773d4",
+      "rates": {
+        "vocabulary": {
+          "count": 1,
+          "per1k": 0.59
+        },
+        "copula-avoidance": {
+          "count": 0,
+          "per1k": 0
+        },
+        "negative-parallelism": {
+          "count": 0,
+          "per1k": 0
+        },
+        "rule-of-three": {
+          "count": 0,
+          "per1k": 0
+        },
+        "em-dash": {
+          "count": 6,
+          "per1k": 3.55
+        },
+        "ing-analysis": {
+          "count": 0,
+          "per1k": 0
+        },
+        "significance-inflation": {
+          "count": 0,
+          "per1k": 0
+        },
+        "puffery": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-attribution": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 1,
+          "per1k": 0.59
+        },
+        "challenges-formula": {
+          "count": 0,
+          "per1k": 0
+        },
+        "inline-header-lists": {
+          "count": 0,
+          "per1k": 0
+        },
+        "bold-overuse": {
+          "count": 0,
+          "per1k": 0
+        },
+        "heading-style": {
+          "count": 0,
+          "per1k": 0
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0
+    },
+    {
+      "id": "darwin-origin",
+      "path": "human/darwin-origin-introduction.txt",
+      "kind": "human",
+      "plain": true,
+      "words": 1708,
+      "sha256": "4106560298b9c23352a3cbd4de657e549b30e7796055dd9fdd59947eb1c473b5",
+      "rates": {
+        "vocabulary": {
+          "count": 0,
+          "per1k": 0
+        },
+        "copula-avoidance": {
+          "count": 0,
+          "per1k": 0
+        },
+        "negative-parallelism": {
+          "count": 0,
+          "per1k": 0
+        },
+        "rule-of-three": {
+          "count": 1,
+          "per1k": 0.59
+        },
+        "em-dash": {
+          "count": 5,
+          "per1k": 2.93
+        },
+        "ing-analysis": {
+          "count": 0,
+          "per1k": 0
+        },
+        "significance-inflation": {
+          "count": 0,
+          "per1k": 0
+        },
+        "puffery": {
+          "count": 1,
+          "per1k": 0.59
+        },
+        "vague-attribution": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 1,
+          "per1k": 0.59
+        },
+        "challenges-formula": {
+          "count": 0,
+          "per1k": 0
+        },
+        "inline-header-lists": {
+          "count": 0,
+          "per1k": 0
+        },
+        "bold-overuse": {
+          "count": 0,
+          "per1k": 0
+        },
+        "heading-style": {
+          "count": 0,
+          "per1k": 0
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0
+    },
+    {
+      "id": "wikipedia-shelby-2019",
+      "path": "human/wikipedia-shelby-nc-2019.md",
+      "kind": "human",
+      "plain": false,
+      "words": 1339,
+      "sha256": "35cccc92c7c469ec277521e4785985b504eca97ff5734f79e69d210a0105e80f",
+      "rates": {
+        "vocabulary": {
+          "count": 1,
+          "per1k": 0.75
+        },
+        "copula-avoidance": {
+          "count": 0,
+          "per1k": 0
+        },
+        "negative-parallelism": {
+          "count": 0,
+          "per1k": 0
+        },
+        "rule-of-three": {
+          "count": 6,
+          "per1k": 4.48
+        },
+        "em-dash": {
+          "count": 0,
+          "per1k": 0
+        },
+        "ing-analysis": {
+          "count": 0,
+          "per1k": 0
+        },
+        "significance-inflation": {
+          "count": 0,
+          "per1k": 0
+        },
+        "puffery": {
+          "count": 1,
+          "per1k": 0.75
+        },
+        "vague-attribution": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 0,
+          "per1k": 0
+        },
+        "challenges-formula": {
+          "count": 0,
+          "per1k": 0
+        },
+        "inline-header-lists": {
+          "count": 0,
+          "per1k": 0
+        },
+        "bold-overuse": {
+          "count": 0,
+          "per1k": 0
+        },
+        "heading-style": {
+          "count": 1,
+          "per1k": 0.75
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0
+    },
+    {
+      "id": "about-us",
+      "path": "machine/about-us.md",
+      "kind": "machine",
+      "plain": false,
+      "words": 536,
+      "sha256": "c90b9c55a7618850f7ece60992387c62968c89dda03e8a491c02fcfd0166e013",
+      "rates": {
+        "vocabulary": {
+          "count": 3,
+          "per1k": 5.6
+        },
+        "copula-avoidance": {
+          "count": 0,
+          "per1k": 0
+        },
+        "negative-parallelism": {
+          "count": 1,
+          "per1k": 1.87
+        },
+        "rule-of-three": {
+          "count": 2,
+          "per1k": 3.73
+        },
+        "em-dash": {
+          "count": 4,
+          "per1k": 7.46
+        },
+        "ing-analysis": {
+          "count": 0,
+          "per1k": 0
+        },
+        "significance-inflation": {
+          "count": 0,
+          "per1k": 0
+        },
+        "puffery": {
+          "count": 3,
+          "per1k": 5.6
+        },
+        "vague-attribution": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 0,
+          "per1k": 0
+        },
+        "challenges-formula": {
+          "count": 0,
+          "per1k": 0
+        },
+        "inline-header-lists": {
+          "count": 5,
+          "per1k": 9.33
+        },
+        "bold-overuse": {
+          "count": 6,
+          "per1k": 11.19
+        },
+        "heading-style": {
+          "count": 2,
+          "per1k": 3.73
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0
+    },
+    {
+      "id": "cover-letter",
+      "path": "machine/cover-letter.md",
+      "kind": "machine",
+      "plain": false,
+      "words": 389,
+      "sha256": "9a9f1fbdfb91765afc0bb39cc825f5d813a0c320be88a98c06210510148d1ff0",
+      "rates": {
+        "vocabulary": {
+          "count": 4,
+          "per1k": 10.28
+        },
+        "copula-avoidance": {
+          "count": 0,
+          "per1k": 0
+        },
+        "negative-parallelism": {
+          "count": 1,
+          "per1k": 2.57
+        },
+        "rule-of-three": {
+          "count": 2,
+          "per1k": 5.14
+        },
+        "em-dash": {
+          "count": 1,
+          "per1k": 2.57
+        },
+        "ing-analysis": {
+          "count": 1,
+          "per1k": 2.57
+        },
+        "significance-inflation": {
+          "count": 1,
+          "per1k": 2.57
+        },
+        "puffery": {
+          "count": 2,
+          "per1k": 5.14
+        },
+        "vague-attribution": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 0,
+          "per1k": 0
+        },
+        "challenges-formula": {
+          "count": 0,
+          "per1k": 0
+        },
+        "inline-header-lists": {
+          "count": 4,
+          "per1k": 10.28
+        },
+        "bold-overuse": {
+          "count": 4,
+          "per1k": 10.28
+        },
+        "heading-style": {
+          "count": 0,
+          "per1k": 0
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0
+    },
+    {
+      "id": "biography",
+      "path": "machine/biography.md",
+      "kind": "machine",
+      "plain": false,
+      "words": 565,
+      "sha256": "437d2d2b557cfac7117071f10f78795ce80255e37d25136a2ea78b695f9d34a4",
+      "rates": {
+        "vocabulary": {
+          "count": 4,
+          "per1k": 7.08
+        },
+        "copula-avoidance": {
+          "count": 2,
+          "per1k": 3.54
+        },
+        "negative-parallelism": {
+          "count": 0,
+          "per1k": 0
+        },
+        "rule-of-three": {
+          "count": 0,
+          "per1k": 0
+        },
+        "em-dash": {
+          "count": 1,
+          "per1k": 1.77
+        },
+        "ing-analysis": {
+          "count": 1,
+          "per1k": 1.77
+        },
+        "significance-inflation": {
+          "count": 3,
+          "per1k": 5.31
+        },
+        "puffery": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-attribution": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 0,
+          "per1k": 0
+        },
+        "challenges-formula": {
+          "count": 0,
+          "per1k": 0
+        },
+        "inline-header-lists": {
+          "count": 0,
+          "per1k": 0
+        },
+        "bold-overuse": {
+          "count": 1,
+          "per1k": 1.77
+        },
+        "heading-style": {
+          "count": 2,
+          "per1k": 3.54
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0
+    },
+    {
+      "id": "blog-restaurant",
+      "path": "machine/blog-restaurant-website.md",
+      "kind": "machine",
+      "plain": false,
+      "words": 571,
+      "sha256": "67693e0ae48230f1d20be80163bbeb7a6e99ba2b7829c0e21a4faeec95fcbb1d",
+      "rates": {
+        "vocabulary": {
+          "count": 2,
+          "per1k": 3.5
+        },
+        "copula-avoidance": {
+          "count": 0,
+          "per1k": 0
+        },
+        "negative-parallelism": {
+          "count": 1,
+          "per1k": 1.75
+        },
+        "rule-of-three": {
+          "count": 3,
+          "per1k": 5.25
+        },
+        "em-dash": {
+          "count": 4,
+          "per1k": 7.01
+        },
+        "ing-analysis": {
+          "count": 0,
+          "per1k": 0
+        },
+        "significance-inflation": {
+          "count": 0,
+          "per1k": 0
+        },
+        "puffery": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-attribution": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 2,
+          "per1k": 3.5
+        },
+        "challenges-formula": {
+          "count": 1,
+          "per1k": 1.75
+        },
+        "inline-header-lists": {
+          "count": 4,
+          "per1k": 7.01
+        },
+        "bold-overuse": {
+          "count": 4,
+          "per1k": 7.01
+        },
+        "heading-style": {
+          "count": 5,
+          "per1k": 8.76
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0
+    },
+    {
+      "id": "essay-broadband",
+      "path": "machine/essay-rural-broadband.md",
+      "kind": "machine",
+      "plain": false,
+      "words": 637,
+      "sha256": "27508c22a56c4886bf279328a833126433cdaa0a52947e489ab54cfee091ec21",
+      "rates": {
+        "vocabulary": {
+          "count": 4,
+          "per1k": 6.28
+        },
+        "copula-avoidance": {
+          "count": 0,
+          "per1k": 0
+        },
+        "negative-parallelism": {
+          "count": 2,
+          "per1k": 3.14
+        },
+        "rule-of-three": {
+          "count": 0,
+          "per1k": 0
+        },
+        "em-dash": {
+          "count": 1,
+          "per1k": 1.57
+        },
+        "ing-analysis": {
+          "count": 2,
+          "per1k": 3.14
+        },
+        "significance-inflation": {
+          "count": 0,
+          "per1k": 0
+        },
+        "puffery": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-attribution": {
+          "count": 1,
+          "per1k": 1.57
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 2,
+          "per1k": 3.14
+        },
+        "challenges-formula": {
+          "count": 3,
+          "per1k": 4.71
+        },
+        "inline-header-lists": {
+          "count": 0,
+          "per1k": 0
+        },
+        "bold-overuse": {
+          "count": 0,
+          "per1k": 0
+        },
+        "heading-style": {
+          "count": 1,
+          "per1k": 1.57
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0
+    },
+    {
+      "id": "about-us-evasion",
+      "path": "machine/about-us-evasion.md",
+      "kind": "machine",
+      "plain": false,
+      "words": 579,
+      "sha256": "ef06e43d83e99695756b8cb732f584d781d100dc862066a02c992dc68f22a897",
+      "rates": {
+        "vocabulary": {
+          "count": 0,
+          "per1k": 0
+        },
+        "copula-avoidance": {
+          "count": 0,
+          "per1k": 0
+        },
+        "negative-parallelism": {
+          "count": 0,
+          "per1k": 0
+        },
+        "rule-of-three": {
+          "count": 1,
+          "per1k": 1.73
+        },
+        "em-dash": {
+          "count": 0,
+          "per1k": 0
+        },
+        "ing-analysis": {
+          "count": 0,
+          "per1k": 0
+        },
+        "significance-inflation": {
+          "count": 0,
+          "per1k": 0
+        },
+        "puffery": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-attribution": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 0,
+          "per1k": 0
+        },
+        "challenges-formula": {
+          "count": 0,
+          "per1k": 0
+        },
+        "inline-header-lists": {
+          "count": 0,
+          "per1k": 0
+        },
+        "bold-overuse": {
+          "count": 0,
+          "per1k": 0
+        },
+        "heading-style": {
+          "count": 1,
+          "per1k": 1.73
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0
+    },
+    {
+      "id": "hybrid-walden",
+      "path": "hybrid/walden-with-machine-paragraph.txt",
+      "kind": "hybrid",
+      "plain": true,
+      "words": 1074,
+      "sha256": "1f60a0908eb1ca3a37f390df5d0a39e7779c69670f099bc0aae8f23e494a452b",
+      "rates": {
+        "vocabulary": {
+          "count": 0,
+          "per1k": 0
+        },
+        "copula-avoidance": {
+          "count": 1,
+          "per1k": 0.93
+        },
+        "negative-parallelism": {
+          "count": 0,
+          "per1k": 0
+        },
+        "rule-of-three": {
+          "count": 2,
+          "per1k": 1.86
+        },
+        "em-dash": {
+          "count": 3,
+          "per1k": 2.79
+        },
+        "ing-analysis": {
+          "count": 0,
+          "per1k": 0
+        },
+        "significance-inflation": {
+          "count": 0,
+          "per1k": 0
+        },
+        "puffery": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-attribution": {
+          "count": 1,
+          "per1k": 0.93
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 3,
+          "per1k": 2.79
+        },
+        "challenges-formula": {
+          "count": 0,
+          "per1k": 0
+        },
+        "inline-header-lists": {
+          "count": 0,
+          "per1k": 0
+        },
+        "bold-overuse": {
+          "count": 0,
+          "per1k": 0
+        },
+        "heading-style": {
+          "count": 0,
+          "per1k": 0
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0,
+      "localisation": {
+        "machineLines": [
+          34,
+          44
+        ],
+        "findingsInside": 7,
+        "findingsTotal": 10,
+        "wordsInside": 122,
+        "wordsTotal": 1074,
+        "shareOfFindings": 0.7,
+        "shareOfWords": 0.114,
+        "method": "non-aggregate findings whose line falls inside the inserted range, against the share of words on those lines"
+      }
+    },
+    {
+      "id": "hybrid-federalist",
+      "path": "hybrid/federalist-10-with-machine-paragraph.txt",
+      "kind": "hybrid",
+      "plain": true,
+      "words": 1122,
+      "sha256": "bab682d4744877adc5175f14baff65a87dc451f9f8904fb27eaf9d11007ea718",
+      "rates": {
+        "vocabulary": {
+          "count": 4,
+          "per1k": 3.57
+        },
+        "copula-avoidance": {
+          "count": 0,
+          "per1k": 0
+        },
+        "negative-parallelism": {
+          "count": 1,
+          "per1k": 0.89
+        },
+        "rule-of-three": {
+          "count": 4,
+          "per1k": 3.57
+        },
+        "em-dash": {
+          "count": 0,
+          "per1k": 0
+        },
+        "ing-analysis": {
+          "count": 2,
+          "per1k": 1.78
+        },
+        "significance-inflation": {
+          "count": 1,
+          "per1k": 0.89
+        },
+        "puffery": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-attribution": {
+          "count": 0,
+          "per1k": 0
+        },
+        "vague-association": {
+          "count": 0,
+          "per1k": 0
+        },
+        "transition-openers": {
+          "count": 2,
+          "per1k": 1.78
+        },
+        "challenges-formula": {
+          "count": 0,
+          "per1k": 0
+        },
+        "inline-header-lists": {
+          "count": 0,
+          "per1k": 0
+        },
+        "bold-overuse": {
+          "count": 0,
+          "per1k": 0
+        },
+        "heading-style": {
+          "count": 0,
+          "per1k": 0
+        },
+        "chat-residue": {
+          "count": 0,
+          "per1k": 0
+        },
+        "model-artifacts": {
+          "count": 0,
+          "per1k": 0
+        },
+        "didactic-disclaimers": {
+          "count": 0,
+          "per1k": 0
+        }
+      },
+      "strong": 0,
+      "localisation": {
+        "machineLines": [
+          45,
+          57
+        ],
+        "findingsInside": 10,
+        "findingsTotal": 14,
+        "wordsInside": 128,
+        "wordsTotal": 1122,
+        "shareOfFindings": 0.714,
+        "shareOfWords": 0.114,
+        "method": "non-aggregate findings whose line falls inside the inserted range, against the share of words on those lines"
+      }
+    }
+  ],
+  "evasion": {
+    "plain": "about-us",
+    "evasion": "about-us-evasion",
+    "rules": {
+      "vocabulary": {
+        "plain": {
+          "count": 3,
+          "per1k": 5.6
+        },
+        "evasion": {
+          "count": 0,
+          "per1k": 0
+        },
+        "evasionLower": true
+      },
+      "negative-parallelism": {
+        "plain": {
+          "count": 1,
+          "per1k": 1.87
+        },
+        "evasion": {
+          "count": 0,
+          "per1k": 0
+        },
+        "evasionLower": true
+      }
+    },
+    "allRules": {
+      "vocabulary": {
+        "plain": 5.6,
+        "evasion": 0
+      },
+      "copula-avoidance": {
+        "plain": 0,
+        "evasion": 0
+      },
+      "negative-parallelism": {
+        "plain": 1.87,
+        "evasion": 0
+      },
+      "rule-of-three": {
+        "plain": 3.73,
+        "evasion": 1.73
+      },
+      "em-dash": {
+        "plain": 7.46,
+        "evasion": 0
+      },
+      "ing-analysis": {
+        "plain": 0,
+        "evasion": 0
+      },
+      "significance-inflation": {
+        "plain": 0,
+        "evasion": 0
+      },
+      "puffery": {
+        "plain": 5.6,
+        "evasion": 0
+      },
+      "vague-attribution": {
+        "plain": 0,
+        "evasion": 0
+      },
+      "vague-association": {
+        "plain": 0,
+        "evasion": 0
+      },
+      "transition-openers": {
+        "plain": 0,
+        "evasion": 0
+      },
+      "challenges-formula": {
+        "plain": 0,
+        "evasion": 0
+      },
+      "inline-header-lists": {
+        "plain": 9.33,
+        "evasion": 0
+      },
+      "bold-overuse": {
+        "plain": 11.19,
+        "evasion": 0
+      },
+      "heading-style": {
+        "plain": 3.73,
+        "evasion": 1.73
+      },
+      "chat-residue": {
+        "plain": 0,
+        "evasion": 0
+      },
+      "model-artifacts": {
+        "plain": 0,
+        "evasion": 0
+      },
+      "didactic-disclaimers": {
+        "plain": 0,
+        "evasion": 0
+      }
+    }
+  },
+  "caveat": "The machine samples were written by the same model family that built the linter; rates in this table describe these files and are not an accuracy claim about any detector, including this one.",
+  "command": "tells corpus --date 2026-09-19"
+}

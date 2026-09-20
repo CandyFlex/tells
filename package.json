@@ -1,0 +1,44 @@
+{
+  "name": "tells",
+  "version": "0.1.0",
+  "description": "A linter for prose that reads as machine-written. Returns the passages that match known signs of LLM-generated text, each with a rule, a line and column, and a count. No probability, no verdict, no rewriting.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Jarred O'Brien",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CandyFlex/tells"
+  },
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "bin": {
+    "tells": "./bin/tells.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "sync-docs": "node scripts/sync-docs.mjs",
+    "check-docs-sync": "node scripts/sync-docs.mjs --check",
+    "corpus": "node bin/tells.mjs corpus",
+    "studies": "node scripts/build-study.mjs && node scripts/studies-index.mjs",
+    "docs-data": "node scripts/build-docs-data.mjs",
+    "check-docs-data": "node scripts/build-docs-data.mjs --check"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "linter",
+    "prose",
+    "writing",
+    "editing",
+    "sarif",
+    "markdown"
+  ],
+  "files": [
+    "src",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ]
+}
