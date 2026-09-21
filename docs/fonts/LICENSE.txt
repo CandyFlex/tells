@@ -2,6 +2,9 @@ Fonts in this folder
 
   source-serif-4-variable.woff2   Source Serif 4 (variable: optical size, weight), latin subset
   source-sans-3-variable.woff2    Source Sans 3 (variable: weight), latin subset
+  sora-700-latin.woff2            Sora Bold (700), latin subset, wordmark only
+
+Sora: Copyright 2019 The Sora Project Authors (https://github.com/sora-xor/sora-font), licensed under the SIL Open Font License, Version 1.1, reproduced below.
 
 Source Serif 4: Copyright 2014 - 2023 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.
 Source Sans 3: Copyright 2010-2024 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.

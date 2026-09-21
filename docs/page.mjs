@@ -1,195 +1,263 @@
 /**
- * page.mjs: every piece of the showcase page that is computed, as pure
+ * page.mjs: every piece of the showcase pages that is computed, as pure
  * functions from data to an HTML string. No DOM, no node: builtin.
  *
  * Two callers use the same functions, so they cannot disagree:
  *
- *   scripts/build-docs-data.mjs  stamps the output into docs/index.html, so
- *                                the first paint has content, nothing shifts
- *                                and the page reads without JavaScript
- *   docs/app.mjs                 runs them again in the browser over a report
- *                                it computes on load with docs/lib
+ *   scripts/build-docs-data.mjs  stamps the output into docs/index.html and
+ *                                docs/rules.html, so the first paint has
+ *                                content and the pages read without JavaScript
+ *   docs/app.mjs                 runs the Try it renderers again in the
+ *                                browser over whatever is typed
  *
- * The underlines, the margin numbers and every figure come from a
- * tells/report@1 or from docs/data.js. Nothing here types a number.
+ * Every location, weight, count and rate comes from a tells/report@1 or from
+ * docs/data.js. Nothing here types a number.
  */
 
-import { analyze, audit, formatAudit, RULES, LIMITS, LIMITS_SOURCE } from './lib/index.mjs';
-import { parseDocument } from './lib/document.mjs';
-import { effectiveWeight } from './lib/report.mjs';
+import { analyze, audit, formatAudit, RULES, LIMITS, LIMITS_SOURCE, MIN_WORDS_FOR_RATES } from './lib/index.mjs';
 
 export const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-const RANK = { weak: 0, moderate: 1, strong: 2 };
-const REVEAL_MS = 1600;
-export const MAX_LISTED = 40;
 
 /** Minimal inline Markdown for paragraphs lifted from the README: code and bold. */
 export const inlineMd = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
+const LEVEL = { weak: 1, moderate: 2, strong: 3 };
+const all = (report) => report.rules.flatMap((r) => (r.findings ?? []).filter((f) => !f.aggregate).map((f) => ({ ...f, rule: r.id, weight: r.weight })));
+const one = (n) => (Math.sign(n) * Math.round(Math.abs(n) * 10) / 10).toFixed(1).replace(/\.0$/, '');
+
 /* ------------------------------------------------------------------ */
-/* The manuscript                                                      */
+/* Sentences from the sample                                           */
 /* ------------------------------------------------------------------ */
 
-/** Findings in reading order, numbered from 1, each with its effective weight. */
-export function numbered(report) {
-  const all = [];
-  for (const r of report.rules) {
-    for (const f of r.findings) all.push({ ...f, rule: r.id, w: effectiveWeight(r, f) });
-  }
-  all.sort((a, b) => a.offset - b.offset || a.length - b.length);
-  all.forEach((f, i) => { f.n = i + 1; });
-  return all;
-}
-
-function spansOf(inline) {
-  const spans = [];
-  for (const f of inline) {
-    const last = spans[spans.length - 1];
-    if (last && f.offset < last.end) {
-      last.end = Math.max(last.end, f.offset + f.length);
-      last.items.push(f);
-    } else {
-      spans.push({ start: f.offset, end: f.offset + f.length, items: [f] });
-    }
-  }
-  return spans;
-}
-
-function blocksOf(doc) {
-  const blocks = [];
-  let start = null;
-  doc.lines.forEach((l, i) => {
-    const blank = doc.raw.slice(l.start, l.end).trim() === '';
-    if (!blank && start === null) start = i;
-    if (start !== null && (blank || i === doc.lines.length - 1)) {
-      const lastLine = blank ? i - 1 : i;
-      blocks.push({ firstLine: start + 1, start: doc.lines[start].start, end: doc.lines[lastLine].end });
-      start = null;
-    }
-  });
-  return blocks;
+/** The sentence around an offset: back to the last stop or line start, on to the next stop. */
+function sentenceAt(text, offset) {
+  let a = offset;
+  while (a > 0 && text[a - 1] !== '\n' && !(/[.!?]/.test(text[a - 2] ?? '') && text[a - 1] === ' ')) a--;
+  let b = offset;
+  while (b < text.length && text[b] !== '\n' && !(/[.!?]/.test(text[b]) && (b + 1 === text.length || /\s/.test(text[b + 1])))) b++;
+  return [a, Math.min(text.length, b + 1)];
 }
 
 /**
- * The annotated text. Each block of the source is set twice in the same box:
- * a lower layer that carries only the underlines, and the text itself on
- * top. The lower layer is what fades in, so a finding can appear by opacity
- * alone and the words never move or dim.
+ * The findings the hero performs, chosen by rule and line. The choice is the
+ * page's; everything shown about each one (match, column, weight) is the
+ * report's. A pick the report no longer contains is dropped, and a test fails
+ * when that happens.
  */
-export function renderManuscript(report, text) {
-  const doc = parseDocument(text, { plain: !!report.options?.plain });
-  const all = numbered(report);
-  const spans = spansOf(all.filter((f) => !f.aggregate));
-  const step = all.length ? Math.round(REVEAL_MS / all.length) : 0;
+export const HERO_PICKS = [
+  { rule: 'em-dash', line: 5 },
+  { rule: 'puffery', line: 7, match: 'Nestled' },
+  { rule: 'vocabulary', line: 7 },
+  { rule: 'negative-parallelism', line: 11 },
+];
 
-  const rows = blocksOf(doc).map((b) => {
-    let under = '';
-    let over = '';
-    let at = b.start;
-    for (const s of spans) {
-      if (s.end <= b.start || s.start >= b.end) continue;
-      const from = Math.max(s.start, b.start);
-      const to = Math.min(s.end, b.end);
-      const plain = esc(doc.raw.slice(at, from));
-      const hit = esc(doc.raw.slice(from, to));
-      const weight = s.items.reduce((w, f) => (RANK[f.w] > RANK[w] ? f.w : w), 'weak');
-      const mine = s.items.filter((f) => f.offset >= b.start);
-      const nums = mine.map((f) => f.n).join(',');
-      // Each number is a link to its note and is described by it, so a
-      // keyboard reaches the note from the mark and a screen reader reads
-      // "heading-style, weak, 1:3, title-case" on the mark itself.
-      const links = mine.map((f) => `<a href="#note-${f.n}" aria-describedby="note-${f.n}">${f.n}</a>`).join(',');
-      const i = s.items[0].n - 1;
-      under += `${plain}<span class="u ${weight} fx" style="--i:${i}">${hit}</span>${nums ? `<sup>${nums}</sup>` : ''}`;
-      over += `${plain}<mark>${hit}</mark>${nums ? `<sup class="fx" style="--i:${i}">${links}</sup>` : ''}`;
-      at = to;
+export function heroFindings(report) {
+  const found = all(report);
+  return HERO_PICKS.map((p) => found.find((f) => f.rule === p.rule && f.line === p.line && (!p.match || f.match === p.match))).filter(Boolean);
+}
+
+/** Sentences holding the given findings, in text order, each with its findings. */
+function sentencesFor(text, findings) {
+  const out = [];
+  for (const f of [...findings].sort((x, y) => x.offset - y.offset)) {
+    const [a, b] = sentenceAt(text, f.offset);
+    let s = out.find((o) => o.a === a);
+    if (!s) out.push(s = { a, b, marks: [] });
+    s.marks.push(f);
+  }
+  return out;
+}
+
+/** One sentence with non-overlapping spans wrapped by `wrap(finding, innerHtml)`. */
+function markSentence(text, s, wrap) {
+  let html = '', at = s.a;
+  for (const f of [...s.marks].sort((x, y) => x.offset - y.offset)) {
+    if (f.offset < at) continue;
+    html += esc(text.slice(at, f.offset)) + wrap(f, esc(text.slice(f.offset, f.offset + f.length)));
+    at = f.offset + f.length;
+  }
+  return html + esc(text.slice(at, s.b).trimEnd());
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero: sentences from the sample, the findings stepped through       */
+/* ------------------------------------------------------------------ */
+
+export function renderHero(report, text) {
+  let i = 0;
+  const note = (f) => `<span class="note"><span class="rule-n">${esc(f.rule)}</span><span class="at">${f.line}:${f.col}</span><span class="w">${esc(f.weight)}</span></span>`;
+  return sentencesFor(text, heroFindings(report))
+    .map((s) => `<p>${markSentence(text, s, (f, inner) => `<span class="mk" style="--i:${i++}">${inner}${note(f)}</span>`)}</p>`).join('');
+}
+
+/* ------------------------------------------------------------------ */
+/* Anatomy: one finding taken apart                                    */
+/* ------------------------------------------------------------------ */
+
+export function renderAnatomy(report, text, ruleId = 'vocabulary') {
+  const rule = report.rules.find((r) => r.id === ruleId);
+  const f = rule.findings.find((x) => !x.aggregate);
+  const [a, b] = sentenceAt(text, f.offset);
+  const before = text.slice(a, f.offset).split(/\s+/).filter(Boolean).slice(-6).join(' ');
+  const after = text.slice(f.offset + f.length, b).trim().split(/\s+/).slice(0, 2).join(' ').replace(/[,.;:]$/, '');
+  const rate = rule.per1k == null ? '' : ` &middot; ${rule.per1k}/1k`;
+  const src = `<p class="anat-src" data-sample>&hellip;${esc(before)} <mark class="w-${rule.weight}">${esc(f.match)}</mark> ${esc(after)}&hellip;</p>`;
+  const dim = '<div class="dim">'
+    + `<div><b class="acc">${esc(rule.id)}</b><u>Rule</u><span>Which pattern matched, by name.</span></div>`
+    + `<div><b>${f.line}:${f.col}</b><u>Line : column</u><span>Where it is. Go straight to it.</span></div>`
+    + `<div><b>${esc(rule.weight)}</b><u>Weight</u><span>How much one hit means alone.</span></div>`
+    + `<div><b>${rule.count}${rate}</b><u>Count and rate</u><span>For this rule in this file. Never added up.</span></div></div>`;
+  return `${src}<div class="anat-drop" aria-hidden="true"></div>${dim}`;
+}
+
+/** The first span two rules both counted, which is why counts are never summed. */
+export function renderOverlap(report) {
+  const found = all(report);
+  for (const f of found) {
+    const other = found.find((g) => g.rule !== f.rule && g.offset === f.offset && g.length === f.length);
+    if (other) {
+      const word = f.match.charAt(0).toUpperCase() + f.match.slice(1);
+      return `Rules overlap. <b>&ldquo;${esc(word)}&rdquo; is counted by both <code class="i">${esc(f.rule)}</code> and <code class="i">${esc(other.rule)}</code></b>, which is why the counts are never summed into one number.`;
     }
-    const tail = esc(doc.raw.slice(at, b.end));
-    const notes = all.filter((f) => f.offset >= b.start && f.offset < b.end);
-    const list = notes.map((f) => `<li class="fx" style="--i:${f.n - 1}" value="${f.n}" id="note-${f.n}"><b>${f.n}</b><span><code>${esc(f.rule)}</code> <i>${f.w}${f.aggregate ? ', whole block' : ''}, ${f.line}:${f.col}</i>${f.note ? ` ${esc(f.note)}` : ''}</span></li>`).join('');
-    const heading = doc.raw[b.start] === '#';
-    return { notes: notes.length, html: `<div class="ms-row${heading ? ' is-heading' : ''}"><div class="ms-text"><span class="ms-ln" aria-hidden="true">${b.firstLine}</span><div class="ms-stack"><p class="ms-layer ms-under" aria-hidden="true">${under}${tail}</p><p class="ms-layer ms-over">${over}${tail}</p></div></div>${list ? `<ol class="ms-notes">${list}</ol>` : ''}</div>` };
-  });
-
-  // The whole sample is about 27,000 px of phone. The first blocks make the
-  // point; the rest is one keystroke away and is in the DOM either way, so
-  // nothing is hidden from a reader who searches the page or prints it.
-  const head = Math.max(1, Math.round(rows.length * HERO_SHARE));
-  const rest = rows.slice(head);
-  const hidden = rest.reduce((k, r) => k + r.notes, 0);
-  const sheet = (list) => `<div class="ms-sheet" style="--step:${step}ms">${list.map((r) => r.html).join('')}</div>`;
-  if (!rest.length) return sheet(rows);
-  return `${sheet(rows.slice(0, head))}<details class="ms-more"><summary>Show the whole sample: ${n(rest.length, 'more block')}, ${n(hidden, 'more finding')}</summary>${sheet(rest)}</details>`;
-}
-
-/** How much of the sample the hero shows before the rest goes behind a details. */
-export const HERO_SHARE = 0.4;
-
-/**
- * The lines under the manuscript. Three things a reader needs and one thing
- * the demo owes them: the first note on this sample is the canonical false
- * positive of the rule that raised it, so the key says so rather than letting
- * the demo open on a finding a careful reader would call wrong.
- */
-export function renderManuscriptKey(report) {
-  const t = report.totals;
-  const first = numbered(report)[0];
-  const rule = first ? RULES.find((r) => r.id === first.rule) : null;
-  const cut = rule ? rule.description.indexOf('False positive:') : -1;
-  const fp = cut > -1 ? rule.description.slice(cut + 'False positive:'.length).trim() : '';
-  const lead = first && fp
-    ? `<p class="ms-key">Note ${first.n} is <code>${esc(first.rule)}</code>, and the rule names this as its own false positive: ${esc(fp.replace(/\.\s[\s\S]*$/, '.'))} A finding is a place to look.</p>`
-    : '';
-  return `${lead}<p class="ms-key">${n(t.findings, 'finding')} in ${n(t.rulesTriggered, 'rule')}, ${n(report.document.words, 'word')}. Underline style is the rule's weight: <span class="key-u weak">dotted weak</span>, <span class="key-u moderate">solid moderate</span>, <span class="key-u strong">double strong</span>. Numbers are line:column, counted in the unwrapped source line, so a column will not match anything you can count on a wrapped screen.</p>`;
+  }
+  return 'Rules overlap: one phrase can be counted by more than one rule, which is why the counts are never summed into one number.';
 }
 
 /* ------------------------------------------------------------------ */
-/* The live panel                                                      */
+/* The difference: the same sentences, unmarked and marked             */
 /* ------------------------------------------------------------------ */
 
-const n = (count, noun) => `${count} ${noun}${count === 1 ? '' : 's'}`;
-
-export function renderSummary(report) {
-  const d = report.document;
-  const t = report.totals;
-  const line = `${n(d.words, 'word')}, ${n(d.sentences, 'sentence')}, ${n(d.paragraphs, 'paragraph')}. ${n(t.findings, 'finding')} in ${t.rulesTriggered} of ${report.rules.length} rules.`;
-  const short = report.rates.reliable ? '' : `<p class="notice" role="note"><strong>Short text.</strong> ${esc(report.rates.note)}.</p>`;
-  return `<p class="summary">${line} Rules overlap, so the tally is not a measurement.</p>${short}`;
-}
-
-const marker = (r) => (r.aboveBaseline === true ? 'above baseline' : r.aboveBaseline === false ? 'not above' : '');
-
-export function renderRuleTable(report) {
-  const head = '<div class="rt-row rt-head" role="row"><span role="columnheader" class="c-rule">rule</span><span role="columnheader" class="c-w">weight</span><span role="columnheader" class="c-n">count</span><span role="columnheader" class="c-r">per 1k</span><span role="columnheader" class="c-b">published baseline</span><span role="columnheader" class="c-m">against it</span></div>';
-  const rows = report.rules.map((r) => {
-    const base = r.baseline ? `${r.baseline.per1k} per 1k, ${esc(r.baseline.label)}` : 'none published';
-    const cls = `${r.count ? '' : ' is-zero'}${r.aboveBaseline === true ? ' is-above' : ''}`;
-    return `<div class="rt-row${cls}" role="row"><span role="cell" class="c-rule"><code>${esc(r.id)}</code></span><span role="cell" class="c-w">${r.weight}</span><span role="cell" class="c-n">${r.count}</span><span role="cell" class="c-r">${r.per1k.toFixed(2)}</span><span role="cell" class="c-b${r.baseline ? '' : ' no-base'}">${base}</span><span role="cell" class="c-m">${marker(r)}</span></div>`;
+export function renderVersus(report, text) {
+  const found = all(report);
+  const sents = sentencesFor(text, heroFindings(report).slice(1))
+    .map((s) => ({ ...s, marks: found.filter((f) => f.offset >= s.a && f.offset < s.b) }));
+  const plain = sents.map((s) => `<p>${esc(text.slice(s.a, s.b).trimEnd())}</p>`).join('');
+  const marked = sents.map((s) => {
+    // Keep the outermost span where two overlap, weighted by the heavier.
+    const spans = [];
+    for (const f of [...s.marks].sort((x, y) => x.offset - y.offset || y.length - x.length)) {
+      const last = spans[spans.length - 1];
+      if (last && f.offset < last.offset + last.length) { if (LEVEL[f.weight] > LEVEL[last.weight]) last.weight = f.weight; continue; }
+      spans.push({ ...f });
+    }
+    return `<p>${markSentence(text, { ...s, marks: spans }, (f, inner) => `<mark class="w-${f.weight}">${inner}</mark>`)}</p>`;
   }).join('');
-  return `<div class="rt" role="table" aria-label="Count and rate for every rule">${head}${rows}</div>`;
+  const locs = sents.flatMap((s) => s.marks).sort((x, y) => x.offset - y.offset || x.rule.localeCompare(y.rule))
+    .map((f) => `<div><i>${f.line}:${f.col}</i><code>${esc(f.rule)}</code><span>${esc(f.weight)}</span></div>`).join('');
+  return `<div class="versus" data-sample>
+      <div class="pane them">
+        <h3>A detector</h3>
+        <div class="txt">${plain}</div>
+        <div class="out"><div class="stamp"><b>Likely AI</b><span>one verdict, whole document</span></div><p>It does not say which sentence, or why. (The shape of what a detector hands back, not a real run.)</p></div>
+      </div>
+      <div class="pane us">
+        <h3>Tells</h3>
+        <div class="txt">${marked}</div>
+        <div class="out locs">${locs}</div>
+      </div>
+    </div>`;
 }
 
-function excerptHtml(f) {
-  const ex = f.excerpt ?? '';
-  const at = f.match ? ex.indexOf(f.match) : -1;
-  if (at < 0) return `<mark>${esc(f.match ?? '')}</mark>`;
-  return `${esc(ex.slice(0, at))}<mark>${esc(f.match)}</mark>${esc(ex.slice(at + f.match.length))}`;
+/* ------------------------------------------------------------------ */
+/* Try it: the mirror under the textarea, and the findings list        */
+/* ------------------------------------------------------------------ */
+
+/** Marks for the mirror. Rules overlap, so each character takes the heaviest weight covering it. */
+export function renderMirror(report, text, hot = null) {
+  const n = text.length;
+  const lv = new Uint8Array(n);
+  for (const f of report ? all(report) : []) {
+    const w = LEVEL[f.weight] ?? 1;
+    for (let i = f.offset; i < Math.min(n, f.offset + f.length); i++) if (lv[i] < w) lv[i] = w;
+  }
+  let html = '';
+  for (let i = 0; i < n;) {
+    let j = i;
+    while (j < n && lv[j] === lv[i]) j++;
+    const chunk = esc(text.slice(i, j));
+    html += lv[i] ? `<span class="w${lv[i]}${hot && i < hot[1] && j > hot[0] ? ' hot' : ''}">${chunk}</span>` : chunk;
+    i = j;
+  }
+  // A trailing newline in a textarea still takes a line; the mirror must match it.
+  return `${html}\n\u{200B}`;
 }
 
-export function renderFindings(report) {
-  const groups = report.rules.filter((r) => r.count > 0).map((r) => {
-    const shown = r.findings.slice(0, MAX_LISTED);
-    const items = shown.map((f) => `<li><span class="loc">${f.line}:${f.col}</span><span class="ex">${excerptHtml(f)}</span></li>`).join('');
-    const more = r.findings.length > shown.length ? `<p class="more">${r.findings.length - shown.length} more not listed here. The CLI prints all of them.</p>` : '';
-    return `<section class="fg"><h4><code>${esc(r.id)}</code> <span>${esc(r.name)}, ${r.weight}, ${r.count} counted</span></h4><ol>${items}</ol>${more}</section>`;
+export function renderTryResults(report, open = ['vocabulary']) {
+  if (!report) return '<div class="sum"><div class="big">0</div><p>Paste some text to see findings.</p></div><ul class="rl"></ul>';
+  const hit = report.rules.filter((r) => r.count > 0);
+  if (!hit.length) return '<div class="sum"><div class="big">0<small>findings</small></div><p>No rule matched. That says nothing about who wrote it.</p></div><ul class="rl"></ul>';
+  hit.sort((a, b) => (LEVEL[b.weight] - LEVEL[a.weight]) || (b.count - a.count));
+  const total = hit.reduce((s, r) => s + r.count, 0);
+  const rates = report.document.words >= MIN_WORDS_FOR_RATES;
+  const sum = `<div class="sum"><div class="big">${total}<small>findings from ${hit.length} rule${hit.length === 1 ? '' : 's'}</small></div>`
+    + `<p>${rates ? 'Rates are per 1,000 words.' : `Rates need ${MIN_WORDS_FOR_RATES} words; counts only below that.`} Rules overlap, so no total score.</p></div>`;
+  const list = hit.map((r) => {
+    const isOpen = open.includes(r.id);
+    const items = r.findings.filter((f) => !f.aggregate).map((f) =>
+      `<li><button type="button" data-o="${f.offset}" data-l="${f.length}"><i>${f.line}:${f.col}</i><span>${esc(f.match)}</span></button></li>`).join('');
+    const rate = rates && r.per1k != null ? ` &middot; ${r.per1k}/1k` : '';
+    return `<li class="${isOpen ? 'open' : ''}" data-id="${esc(r.id)}"><button type="button" class="rh" aria-expanded="${isOpen}">`
+      + `<code class="w-${r.weight}">${esc(r.id)}</code><span class="wt">${r.weight}</span><span class="ct"><b>${r.count}</b>${rate}</span></button><ol>${items}</ol></li>`;
+  }).join('');
+  return `${sum}<ul class="rl">${list}</ul>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* The gap: one diverging bar per rule                                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * For each rule, the lowest rate in any machine file minus the highest in
+ * any human file. Above zero, every machine file outscored every human one.
+ * Machine means the files written without an avoidance instruction, the
+ * same split the README uses.
+ */
+export function gapRows(corpus) {
+  const evasion = corpus.evasion?.evasion;
+  const human = corpus.files.filter((f) => f.kind === 'human');
+  const machine = corpus.files.filter((f) => f.kind === 'machine' && f.id !== evasion);
+  const drawn = corpus.files.filter((f) => f.kind !== 'hybrid');
+  const rows = corpus.ruleIds.map((id) => {
+    const hMax = Math.max(...human.map((f) => f.rates[id].per1k));
+    const mMin = Math.min(...machine.map((f) => f.rates[id].per1k));
+    return { id, hMax, mMin, gap: mMin - hMax, sep: mMin > hMax && mMin > 0, fired: drawn.some((f) => f.rates[id].per1k > 0) };
   });
-  if (!groups.length) return '<p class="empty">No rule matched this text. That is a count of zero, not a statement about who wrote it.</p>';
-  return groups.join('');
+  return { rows, humanFiles: human.length, machineFiles: machine.length };
 }
 
-export function renderResults(report) {
-  return `${renderSummary(report)}${renderRuleTable(report)}<h3 class="sub">Findings, grouped by rule</h3><div class="findings" data-sample>${renderFindings(report)}</div>`;
+const COUNT = ['No rule', 'Only one rule', 'Two rules', 'Three rules', 'Four rules', 'Five rules'];
+
+export function renderGapHead(corpus) {
+  const n = gapRows(corpus).rows.filter((r) => r.sep).length;
+  return `<h2 class="t-sec" id="h-finding">${COUNT[n] ?? `${n} rules`} ${n === 1 ? 'clears' : 'clear'} the gap.</h2>`;
+}
+
+export function renderGap(corpus) {
+  const { rows, humanFiles, machineFiles } = gapRows(corpus);
+  const fired = rows.filter((r) => r.fired), silent = rows.filter((r) => !r.fired);
+  const LO = Math.floor(Math.min(-5, ...fired.map((r) => r.gap)) / 5) * 5 - 2;
+  const HI = Math.ceil(Math.max(5, ...fired.map((r) => r.gap)) / 5) * 5 + 1;
+  const span = HI - LO, zero = (-LO / span) * 100, pos = (v) => ((v - LO) / span) * 100;
+  const off = (id) => RULES.find((x) => x.id === id)?.historical;
+  const body = [...fired].sort((a, b) => b.gap - a.gap).map((r) => {
+    const bar = r.gap === 0 ? `<i class="va-pin" style="left:${zero.toFixed(2)}%"></i>`
+      : `<i class="va-bar ${r.gap > 0 ? 'pos' : 'neg'}" style="left:${(r.gap > 0 ? zero : pos(r.gap)).toFixed(2)}%;width:${((Math.abs(r.gap) / span) * 100).toFixed(2)}%"></i>`;
+    const note = r.gap > 0 ? `machine ${one(r.mMin)}+ vs human up to ${one(r.hMax)}`
+      : r.gap === 0 ? 'machine files score 0 too' : `human up to ${one(r.hMax)}, machine from ${one(r.mMin)}`;
+    return `<div class="va-row${r.sep ? ' sep' : ''}"><code>${esc(r.id)}${off(r.id) ? '*' : ''}</code><div class="va-track">${bar}</div><span class="va-v">${r.gap > 0 ? '+' : ''}${one(r.gap)}</span><span class="va-n">${note}</span></div>`;
+  }).join('');
+  const ticks = [];
+  for (let t = Math.ceil(LO / 5) * 5; t <= HI; t += 5) ticks.push(`<span style="left:${pos(t).toFixed(2)}%">${t > 0 ? '+' : ''}${t}</span>`);
+  const widest = [...fired].sort((a, b) => a.gap - b.gap)[0];
+  const widestNote = widest && widest.gap < 0 ? ` <b>${one(widest.gap)}</b> on <code>${esc(widest.id)}</code>: a human file at ${one(widest.hMax)}, above every machine file.` : '';
+  const star = fired.some((r) => off(r.id)) ? ' * off by default.' : '';
+  const none = silent.length ? ` Not shown: ${silent.map((r) => `<code>${esc(r.id)}</code>`).join(', ')}, which fired on no file.` : '';
+  return `<div class="va" role="img" aria-label="${fired.length} rules. Gap between the lowest machine rate and the highest human rate. Above zero: ${fired.filter((r) => r.sep).map((r) => r.id).join(', ') || 'none'}.">
+    <div class="va-sides"><span></span><div class="va-lr" style="--z:${zero.toFixed(2)}%"><span>&larr; a human file reaches the machines</span><span>machines clear every human &rarr;</span></div></div>
+    <div class="va-sides"><span></span><div class="va-ticks">${ticks.join('')}</div></div>
+    <div class="va-rows">${body}</div>
+    <p class="va-key">Findings per 1,000 words. ${humanFiles} human files, ${machineFiles} machine files.${widestNote}${star}${none}</p>
+  </div>`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -197,26 +265,22 @@ export function renderResults(report) {
 /* ------------------------------------------------------------------ */
 
 export function renderLimitsCompact() {
-  return `<aside class="limits" aria-labelledby="limits-compact"><h3 id="limits-compact">Limits of every count above</h3><ol>${LIMITS.map((l) => `<li>${esc(l)}</li>`).join('')}</ol><p>Source: <a href="${esc(LIMITS_SOURCE.url)}">${esc(LIMITS_SOURCE.label)}</a></p></aside>`;
+  return `<aside class="limits-compact" aria-labelledby="limits-compact"><h3 id="limits-compact">Limits of every count above</h3><ol>${LIMITS.map((l) => `<li>${esc(l)}</li>`).join('')}</ol><p>Source: <a href="${esc(LIMITS_SOURCE.url)}">${esc(LIMITS_SOURCE.label)}</a></p></aside>`;
 }
 
 export function renderLimitsStatement() {
   const big = (l) => esc(l).replace(/(\d+%)/, '<strong>$1</strong>');
-  return `<ol class="statements">${LIMITS.map((l) => `<li><span>${big(l)}</span></li>`).join('')}</ol><p class="statement-source">The figure is from <a href="${esc(LIMITS_SOURCE.url)}">${esc(LIMITS_SOURCE.label)}</a>.</p>`;
+  return `<ol class="cannot">${LIMITS.map((l) => `<li><b>${big(l)}</b></li>`).join('')}</ol><p class="statement-source">The figure is from <a href="${esc(LIMITS_SOURCE.url)}">${esc(LIMITS_SOURCE.label)}</a>.</p>`;
 }
 
 /* ------------------------------------------------------------------ */
-/* Rules index                                                         */
+/* Rules index (rules.html)                                            */
 /* ------------------------------------------------------------------ */
 
 /**
  * One line per rule, with the description, the false-positive note and the
- * sources behind a native <details>.
- *
- * Eighteen rules printed in full made the phone page 27,892 px tall, about
- * thirty-five screens. <details> is keyboard reachable and searchable without
- * any script; docs/app.mjs opens them all at 900 px and wider, where there is
- * room, and the page is correct with the script never running.
+ * sources behind a native <details>. docs/app.mjs opens them all at 900 px
+ * and wider; the page is correct with the script never running.
  */
 export function renderRulesIndex() {
   return `<div class="rules">${RULES.map((r) => {
@@ -232,71 +296,6 @@ export function renderRulesIndex() {
   }).join('')}</div>`;
 }
 
-/* ------------------------------------------------------------------ */
-/* Corpus                                                              */
-/* ------------------------------------------------------------------ */
-
-const one = (n) => n.toFixed(1);
-const codeList = (ids) => ids.map((id) => `<code>${esc(id)}</code>`).join(', ');
-
-/** The plain statements, every number from data.facts. */
-export function renderFacts(data) {
-  const k = data.facts;
-  const author = data.manifest.find((m) => m.id === k.dashTop.id)?.author ?? k.dashTop.id;
-  return `<ul class="facts">
-<li><strong>${one(k.dashTop.per1k)} per 1,000 words</strong> is the highest dash rate in the corpus, and it belongs to a ${esc(k.dashTop.kind)}: ${esc(author)}, <code>${esc(k.dashTop.id)}</code>. The published figure for ${esc(k.dashPublishedMachine.label)} is ${k.dashPublishedMachine.per1k}. The machine files here run from ${one(k.dashMachine.min)} to ${one(k.dashMachine.max)}. Dash density does not identify an author.</li>
-<li><strong>${k.overlap.length} of ${k.rules} rules</strong> have a top human rate that reaches or passes the lowest machine rate: ${codeList(k.overlap)}. For those a rate separates nothing, even in-sample.</li>
-<li><strong>${k.silent.length} rules</strong> fired on no file: ${codeList(k.silent)}. This corpus says nothing about them.</li>
-<li><strong>${k.evasion.findings} findings in ${k.evasion.words} words</strong> is all the rules found in <code>${esc(k.evasion.id)}</code>, a machine text written by an author who had read the rule list. Anyone who knows the rules can write around them.</li>
-</ul>`;
-}
-
-const CH = { w: 200, h: 150, left: 24, top: 8, bottom: 122, bar: 9, gap: 2, group: 9 };
-
-function chart(ruleId, files, yMax, rule) {
-  const y = (v) => CH.bottom - (Math.min(v, yMax) / yMax) * (CH.bottom - CH.top);
-  let x = CH.left + 4;
-  let prev = null;
-  const groups = [];
-  const bars = files.map((f) => {
-    if (prev && prev !== f.kind) x += CH.group;
-    if (prev !== f.kind) groups.push({ kind: f.kind, from: x });
-    prev = f.kind;
-    const v = f.rates[ruleId].per1k;
-    const top = v > 0 ? Math.min(y(v), CH.bottom - 1.5) : CH.bottom - 1.5;
-    const rect = `<rect class="bar ${f.kind}${v > 0 ? '' : ' zero'}" x="${x}" y="${top.toFixed(1)}" width="${CH.bar}" height="${(CH.bottom - top).toFixed(1)}"${f.kind === 'hybrid' && v > 0 ? ' fill="url(#hatch)"' : ''}><title>${esc(f.id)} (${f.kind}): ${one(v)} per 1k, ${f.rates[ruleId].count} counted in ${f.words} words</title></rect>`;
-    groups[groups.length - 1].to = x + CH.bar;
-    x += CH.bar + CH.gap;
-    return rect;
-  }).join('');
-  const refs = rule?.baseline
-    ? [{ v: rule.baseline.per1k, c: 'ref-human' }, ...(rule.baseline.machine ?? []).map((m) => ({ v: m.per1k, c: 'ref-machine' }))]
-      .map((r) => `<line class="ref ${r.c}" x1="${CH.left}" x2="${CH.w - 2}" y1="${y(r.v).toFixed(1)}" y2="${y(r.v).toFixed(1)}"/>`).join('')
-    : '';
-  const labels = groups.map((g) => `<text class="gl" x="${((g.from + g.to) / 2).toFixed(1)}" y="${CH.bottom + 15}" text-anchor="middle">${g.kind === 'hybrid' ? 'hyb.' : g.kind}</text>`).join('');
-  const topFile = [...files].sort((a, b) => b.rates[ruleId].per1k - a.rates[ruleId].per1k)[0];
-  const topV = topFile.rates[ruleId].per1k;
-  const cap = topV > 0 ? `top ${one(topV)}, ${esc(topFile.id)} (${topFile.kind})` : 'no finding in any file';
-  const refCap = rule?.baseline ? `<span class="cap-ref">Dashed lines: ${rule.baseline.per1k} human baseline${(rule.baseline.machine ?? []).map((m) => `, ${m.per1k} ${esc(m.label.split(' (')[0].split(' on ')[0])}`).join('')}.</span>` : '';
-  return `<figure class="sm"><svg viewBox="0 0 ${CH.w} ${CH.h}" role="img" aria-label="${esc(ruleId)}: ${cap}"><text class="yl" x="${CH.left - 4}" y="${CH.top + 4}" text-anchor="end">${yMax}</text><text class="yl" x="${CH.left - 4}" y="${CH.bottom + 1}" text-anchor="end">0</text><line class="axis" x1="${CH.left}" x2="${CH.w - 2}" y1="${CH.bottom}" y2="${CH.bottom}"/><line class="axis faint" x1="${CH.left}" x2="${CH.w - 2}" y1="${CH.top}" y2="${CH.top}"/>${refs}${bars}${labels}</svg><figcaption><code>${esc(ruleId)}</code><span>${cap}</span>${refCap}</figcaption></figure>`;
-}
-
-export function renderCorpus(data) {
-  const c = data.corpus;
-  const max = Math.max(...c.files.flatMap((f) => c.ruleIds.map((id) => f.rates[id].per1k)));
-  const yMax = Math.ceil(max / 5) * 5;
-  const counts = c.files.reduce((n, f) => ({ ...n, [f.kind]: (n[f.kind] ?? 0) + 1 }), {});
-  const legend = `<p class="legend"><span><svg viewBox="0 0 12 12" aria-hidden="true"><rect class="bar human" width="12" height="12"/></svg>human, ${counts.human} files</span><span><svg viewBox="0 0 12 12" aria-hidden="true"><rect class="bar machine" width="12" height="12"/></svg>machine, ${counts.machine} files</span><span><svg viewBox="0 0 12 12" aria-hidden="true"><rect class="bar hybrid" width="12" height="12" fill="url(#hatch)"/></svg>hybrid, ${counts.hybrid} files (hatched)</span><span>Every chart shares one scale: 0 to ${yMax} findings per 1,000 words.</span></p>`;
-  const defs = '<svg class="defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect class="hatch-bg" width="4" height="4"/><line class="hatch-line" x1="0" y1="0" x2="0" y2="4"/></pattern></defs></svg>';
-  const charts = c.ruleIds.map((id) => chart(id, c.files, yMax, RULES.find((r) => r.id === id))).join('');
-  const order = `<p class="order">Files, left to right: ${c.files.map((f) => `<code>${esc(f.id)}</code>`).join(', ')}.</p>`;
-  return `${defs}${legend}<div class="multiples">${charts}</div>${order}`;
-}
-
-/* ------------------------------------------------------------------ */
-/* Use it                                                              */
-/* ------------------------------------------------------------------ */
-
 /**
  * A constructed scenario: the sample's own report with one finding deleted
  * and the count fixed up to hide it, then audited against the sample.
@@ -307,8 +306,12 @@ export function renderAuditExample(sampleText) {
   const gone = rule.findings.pop();
   rule.count -= 1;
   const out = formatAudit(audit(report, sampleText));
-  return `<p>Constructed scenario: the report for the sample at the top of this page, with the <code>${esc(rule.id)}</code> finding at ${gone.line}:${gone.col} deleted and the count lowered to match. <code>tells audit</code> recomputes everything from the document and says:</p><pre class="out" tabindex="0" data-sample><code>${esc(out.trimEnd())}</code></pre>`;
+  return `<p>Constructed scenario: the report for the sample on the home page, with the <code>${esc(rule.id)}</code> finding at ${gone.line}:${gone.col} deleted and the count lowered to match. <code>tells audit</code> recomputes everything from the document and says:</p><pre class="out" tabindex="0" data-sample><code>${esc(out.trimEnd())}</code></pre>`;
 }
+
+/* ------------------------------------------------------------------ */
+/* Use it                                                              */
+/* ------------------------------------------------------------------ */
 
 /**
  * `owner/repo` from the repository URL, for the `npx github:` form. Derived
@@ -316,17 +319,21 @@ export function renderAuditExample(sampleText) {
  */
 const slug = (repository) => String(repository).replace(/^.*github\.com\//i, '').replace(/\.git$/, '').replace(/\/$/, '');
 
-/**
- * Until the package is on npm the page offers the command that works today,
- * which runs the tool straight from the public repository. Same shape as
- * falloff and disrepair, whose pages resolve this the same way; the earlier
- * clone-and-cd form was three steps and asserted the repository was not yet
- * public, which stops being true the moment it is.
- */
-export function renderInstall(data) {
-  const npm = data.npm;
-  if (npm.published) return `<pre tabindex="0"><code>npm i ${esc(data.packageName)}\nnpx ${esc(data.packageName)} draft.md</code></pre>`;
-  return `<pre tabindex="0"><code>npx github:${esc(slug(data.repository))} draft.md</code></pre><p>It is not on npm yet: <code>${esc(npm.command)}</code> returned ${esc(npm.result)} on ${esc(npm.checkedOn)}, so this runs it straight from the repository. Requires Node ${esc(data.node)}. Zero dependencies.</p>`;
-}
+/** Until the package is on npm, the command that works today runs it from the repository. */
+export const installCommand = (data) => (data.npm.published ? `npx ${data.packageName}` : `npx github:${slug(data.repository)}`);
 
-export const installCommand = (data) => (data.npm.published ? `npm i ${data.packageName}` : `npx github:${slug(data.repository)}`);
+/** The Use it commands, all built from the one derived install command. */
+export function renderUse(data) {
+  const [k, ...rest] = installCommand(data).split(' ');
+  const line = (args) => `<span class="k">${esc(k)}</span> ${esc([...rest, args].join(' '))}`;
+  const code = `<pre class="code" tabindex="0"><span class="c"># check a file</span>
+${line('draft.md')}
+
+<span class="c"># fail a build on chat leftovers</span>
+${line('draft.md --fail-on strong')}
+
+<span class="c"># an annotated page you can read</span>
+${line('render draft.md --out report.html')}</pre>`;
+  const note = data.npm.published ? '' : `<p class="npm-note">Not on npm yet: <code>${esc(data.npm.command)}</code> returned ${esc(data.npm.result)} on ${esc(data.npm.checkedOn)}, so this runs it straight from the repository.</p>`;
+  return code + note;
+}

@@ -20,7 +20,7 @@ Offline, no dependencies, under 30 seconds. It must pass before and after your c
 
 ## The showcase page
 
-- `docs/index.html` holds its computed parts between `<!-- gen:name -->` markers. `npm run docs-data` rewrites them and `docs/data.js`; `npm run check-docs-data` and a test fail when either is stale. Edit the markup outside the markers, `docs/page.mjs` (pure renderers, shared by the build and the browser) or `docs/style.css`, never the text between markers.
+- `docs/index.html` and `docs/rules.html` hold their computed parts between `<!-- gen:name -->` markers. `npm run docs-data` rewrites them and `docs/data.js`; `npm run check-docs-data` and a test fail when any is stale. Edit the markup outside the markers, `docs/page.mjs` (pure renderers, shared by the build and the browser), `docs/style.css` or `docs/home.css`, never the text between markers.
 - The page makes no network request: no CDN, no remote font, no analytics, no `fetch`. `test/docs-page.test.mjs` enforces it. `node scripts/build-docs-data.mjs --npm` is the one command that asks the registry whether the package is published, and it records the answer in `scripts/npm-status.json` so later builds stay offline.
 - Anything that quotes a sample (the manuscript, the textarea, the findings list, the audit output) carries `data-sample`. Those regions may contain the characters the tool detects. Nothing else on the page may.
 8. **No fabricated proof.** No testimonials, user counts, star counts or "trusted by". An attribution you cannot check is marked unverified (see `realm` in `src/rules/lexicon.mjs`), not asserted.
